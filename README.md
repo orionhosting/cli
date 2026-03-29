@@ -13,7 +13,7 @@
 
 `@orionhosting/cli` is the official [Orion Hosting](https://orionhosting.xyz) command line interface (CLI) to manage your server from your local terminal. After linking a directory to your server, you can run `orion deploy` to push and restart your Orion's server.
 
-Orion Hosting is a project from [Voctal](https://voctal.dev) and [Octara](https://octara.xyz).
+Read the CLI documentation [here](https://docs.orionhost.xyz/guides/cli).
 
 ## Installation
 
