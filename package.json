@@ -1,0 +1,63 @@
+{
+    "$schema": "https://json.schemastore.org/package.json",
+    "name": "@orionhosting/cli",
+    "version": "0.1.0",
+    "description": "Deploy your projects from the terminal",
+    "keywords": [
+        "cli",
+        "host",
+        "hosting",
+        "octara",
+        "orion",
+        "voctal"
+    ],
+    "homepage": "https://github.com/voctal/orion-cli",
+    "bugs": {
+        "url": "https://github.com/voctal/orion-cli/issues"
+    },
+    "license": "GPL-3.0-only",
+    "author": "voctal",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/voctal/orion-cli.git"
+    },
+    "bin": {
+        "orion": "./dist/index.mjs"
+    },
+    "files": [
+        "dist"
+    ],
+    "type": "module",
+    "scripts": {
+        "build": "tsdown",
+        "lint": "tsc --noEmit && oxlint && oxfmt --check",
+        "fmt": "oxfmt"
+    },
+    "dependencies": {
+        "@inquirer/input": "^5.0.10",
+        "@inquirer/password": "^5.0.10",
+        "@inquirer/select": "^5.1.2",
+        "@voctal/pelican": "^0.3.1",
+        "archiver": "^7.0.1",
+        "chalk": "^5.3.0",
+        "commander": "^12.1.0",
+        "env-paths": "^4.0.0",
+        "figures": "^6.1.0",
+        "open": "^11.0.0",
+        "ora": "^8.0.1",
+        "update-notifier": "^7.3.1",
+        "zod": "^4.3.6"
+    },
+    "devDependencies": {
+        "@types/archiver": "^6.0.2",
+        "@types/node": "^20.0.0",
+        "@types/update-notifier": "^6.0.8",
+        "oxfmt": "^0.42.0",
+        "oxlint": "^1.57.0",
+        "tsdown": "^0.21.7",
+        "typescript": "^5.9.3"
+    },
+    "engines": {
+        "node": ">=23"
+    }
+}
