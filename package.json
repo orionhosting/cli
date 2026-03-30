@@ -22,7 +22,7 @@
         "url": "git+https://github.com/voctal/orion-cli.git"
     },
     "bin": {
-        "orion": "./dist/index.mjs"
+        "orion": "dist/index.mjs"
     },
     "files": [
         "dist"
