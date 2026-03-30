@@ -17,7 +17,7 @@ Read the CLI documentation [here](https://docs.orionhost.xyz/guides/cli).
 
 ## Installation
 
-Node.js 22 or newer is required.
+Node.js 23 or newer is required.
 
 ```sh
 npm install -g @orionhosting/cli
@@ -35,6 +35,15 @@ orion help [command]
 
 # Login to your account
 orion login
+
+# Logout from your account
+orion logout
+
+# View which account you are logged in
+orion account
+
+# List your servers
+orion list
 ```
 
 ### Project commands
@@ -50,7 +59,26 @@ orion status
 
 # Deploy the local project to the linked server
 orion deploy
+
+# Start your server
+orion start
+
+# Start or restart your server
+orion restart
+
+# Stop your server
+orion stop
+
+# Open your server's panel
+orion open
 ```
+
+### Global options
+
+All commands accepts both `--token <TOKEN>` and `--server <SERVER_ID>` options
+which let you use the CLI without the need to run `orion login` and `orion link`.
+
+These options are made to be used inside CI/CD workflows like GitHub Actions, to e.g. automatically deploy your project on push.
 
 ## Links
 
