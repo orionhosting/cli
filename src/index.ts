@@ -2,6 +2,8 @@
 
 import { Command } from "commander";
 import { account } from "./commands/account";
+// import { console as consoleCommand } from "./commands/console";
+import { docs } from "./commands/docs";
 import { link } from "./commands/link";
 import { list } from "./commands/list";
 import { login } from "./commands/login";
@@ -12,6 +14,7 @@ import { start } from "./commands/start";
 import { status } from "./commands/status";
 import { stop } from "./commands/stop";
 import { Context } from "./context";
+import { initUpdateNotifier } from "./utils/updater";
 
 const program = new Command();
 const ctx = new Context(program);
@@ -38,7 +41,17 @@ program.command("login").description("Login to your Orion account").action(ctx.b
 
 program.command("logout").description("Logout from your account").action(ctx.buildCommand(logout));
 
+program.command("docs").description("Open the Orion documentation in your browser").action(ctx.buildCommand(docs));
+
 program.command("link").description("Link this directory to a server").action(ctx.buildCommand(link));
+
+// program
+// .command("console")
+// .description("View the server console in real-time")
+// .option("--no-stats", "do not display stats")
+// .action(ctx.buildCommand(consoleCommand));
+
+initUpdateNotifier();
 
 /*
 program
