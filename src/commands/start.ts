@@ -47,5 +47,5 @@ export async function start(ctx: Context) {
 
     spinner.succeed("Server started");
 
-    console.log(chalk.gray(`  Use ${chalk.bold.gray("orion status")} to verify`));
+    console.log(chalk.gray(`  Use ${chalk.bold.gray("orion console")} to verify`));
 }

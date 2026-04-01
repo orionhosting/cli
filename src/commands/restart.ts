@@ -42,5 +42,5 @@ export async function restart(ctx: Context) {
 
     spinner.succeed("Server restarted");
 
-    console.log(chalk.gray(`  Use ${chalk.bold.gray("orion status")} to verify`));
+    console.log(chalk.gray(`  Use ${chalk.bold.gray("orion console")} to verify`));
 }

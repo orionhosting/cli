@@ -47,5 +47,5 @@ export async function stop(ctx: Context) {
 
     spinner.succeed("Server stopped");
 
-    console.log(chalk.gray(`  Use ${chalk.bold.gray("orion status")} to verify`));
+    console.log(chalk.gray(`  Use ${chalk.bold.gray("orion console")} to verify`));
 }
