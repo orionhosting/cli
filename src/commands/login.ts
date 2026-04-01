@@ -5,6 +5,7 @@ import figureSet from "figures";
 import ora from "ora";
 import { Context } from "../context";
 import { loadOrCreateAuth, saveAuth } from "../utils/auth";
+import { DOCS_URL } from "../utils/constants";
 import { isExitPromptError } from "../utils/inputs";
 
 export async function login(ctx: Context) {
@@ -17,7 +18,7 @@ export async function login(ctx: Context) {
                 message: "Your API Token",
                 mask: "*",
                 validate: v => {
-                    const commonMessage = `\n> How to find your token: https://docs.orionhost.xyz/guides/cli\n`;
+                    const commonMessage = `\n> How to find your token: ${DOCS_URL}/guides/cli\n`;
 
                     if (!v.startsWith("pacc_")) return "The token should start with pacc_" + commonMessage;
                     if (v.length <= 18) return "This is not a full token" + commonMessage;
