@@ -77,19 +77,20 @@ export class Context {
     public handleException(error: unknown) {
         if (error instanceof PelicanError) {
             if (error.status === 401) {
-                console.error(chalk.bold.red(`${figures.tick} You are not authenticated`));
+                console.error(chalk.bold.red(`${figures.cross} You are not authenticated`));
                 console.error(chalk.gray("Use `orion login` or the global option `--token <TOKEN>`"));
             } else if (error.status === 404) {
-                console.error(chalk.bold.red(`${figures.tick} The linked server does not exist`));
+                console.error(chalk.bold.red(`${figures.cross} The linked server does not exist`));
                 console.error(chalk.gray("Use `orion link` to re-link the project"));
             } else {
-                console.error(chalk.bold.red(`${figures.tick} There was an error fetching the panel`));
+                console.error(chalk.bold.red(`${figures.cross} There was an error fetching the panel`));
                 console.error(chalk.gray(error.message));
             }
         } else {
-            console.error(chalk.bold.red(`${figures.tick} An unknown error occured`));
+            console.error(chalk.bold.red(`${figures.cross} An unknown error occured`));
             console.error(chalk.gray(inspect(error, { depth: 5 })));
         }
+        console.error("");
 
         process.exit(1);
     }
