@@ -3,6 +3,7 @@ import chalk from "chalk";
 import figureSet from "figures";
 import ora from "ora";
 import { Context } from "../context";
+import { isExitPromptError } from "../utils/inputs";
 import { addProjectFolderToGitignore, saveProjectData } from "../utils/projects";
 
 export async function link(ctx: Context) {
@@ -29,15 +30,27 @@ export async function link(ctx: Context) {
         return;
     }
 
-    const serverId = await select({
-        loop: false,
-        message: "Select the server you want to link to this directory",
-        choices: servers.data.map(s => ({
-            name: `  ${chalk.bold.gray(s.attributes.name)}`,
-            value: s.attributes.identifier,
-            description: s.attributes.description || undefined,
-        })),
-    });
+    let serverId;
+    try {
+        serverId = await select(
+            {
+                loop: false,
+                message: "Select the server you want to link to this directory",
+                choices: servers.data.map(s => ({
+                    name: `  ${chalk.bold.gray(s.attributes.name)}`,
+                    value: s.attributes.identifier,
+                    description: s.attributes.description || undefined,
+                })),
+            },
+            { clearPromptOnDone: true },
+        );
+    } catch (err) {
+        if (isExitPromptError(err)) {
+            console.log(`${chalk.blue(figureSet.tick)} Canceled`);
+            return;
+        }
+        throw err;
+    }
 
     const data = { version: 1, serverId };
     await saveProjectData(data);
