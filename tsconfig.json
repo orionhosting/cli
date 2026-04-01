@@ -43,8 +43,11 @@
         // Language and Environment
         "lib": ["ESNext"],
         "target": "ESNext",
-        "useDefineForClassFields": true
+        "useDefineForClassFields": true,
+
+        // React
+        "jsx": "react-jsx"
     },
-    "include": ["src/**/*.ts"],
+    "include": ["src/**/*.ts", "src/**/*.tsx"],
     "exclude": ["node_modules"]
 }
