@@ -30,11 +30,11 @@ export async function list(ctx: Context) {
 
     spinner.stop();
 
-    console.log(`  ${chalk.white("Your servers")}`);
+    console.log(`${chalk.white("Your servers")}`);
     for (const server of servers.data) {
         console.log(
-            chalk.gray(`  [${chalk.blue(server.attributes.identifier)}]`) +
-                chalk.gray(`  ${figureSet.triangleRightSmall}  ${server.attributes.name}`),
+            chalk.gray(` [${chalk.blue(server.attributes.identifier)}]`) +
+                chalk.gray(`  ${figureSet.triangleRightSmall}  ${chalk.gray(server.attributes.name)}`),
         );
     }
 }
