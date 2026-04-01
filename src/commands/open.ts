@@ -35,6 +35,6 @@ export async function open(ctx: Context) {
 
     spinner.stop();
 
-    console.log(chalk.bold.green(`  ${figureSet.tick} Panel opened in your browser.`));
-    console.log(`  Otherwise, go to ${chalk.gray(url)}`);
+    console.log(chalk.bold.green(`${figureSet.tick} Panel opened in your browser.`));
+    console.log(`Otherwise, go to ${chalk.gray(url)}`);
 }

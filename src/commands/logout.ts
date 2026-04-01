@@ -9,12 +9,12 @@ export async function logout(ctx: Context) {
     const auth = await loadOrCreateAuth();
 
     if (!auth.token) {
-        console.log(chalk.gray("  You are not logged in."));
+        console.log(chalk.gray(`${figureSet.cross} You are not logged in.`));
         return;
     }
 
     auth.token = "";
     await saveAuth(auth);
 
-    console.log(chalk.gray(`${figureSet.tick} Logged out`));
+    console.log(chalk.green(`${figureSet.tick} Logged out`));
 }

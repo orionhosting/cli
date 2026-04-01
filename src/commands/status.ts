@@ -1,6 +1,7 @@
 import chalk, { ChalkInstance } from "chalk";
 import ora from "ora";
 import { Context } from "../context";
+import { formatUptime } from "../utils/servers";
 
 const colors: Record<string, ChalkInstance> = {
     running: chalk.green,
@@ -49,14 +50,6 @@ export async function status(ctx: Context) {
     const ip_alias = alloc?.attributes.ip_alias;
     const port = alloc?.attributes.port;
 
-    // URLs
-
-    if (ip_alias) {
-        console.log(`    ${chalk.gray(`http://${ip_alias}:${port}`)}`);
-        console.log(`    ${chalk.gray(`https://${port}.${ip_alias}`)}`);
-        console.log("");
-    }
-
     // Server
 
     console.log(`  Server  ${chalk.magenta(server.attributes.identifier)}`);
@@ -68,19 +61,18 @@ export async function status(ctx: Context) {
         console.log(chalk.gray(`    port    ${port}`));
     }
 
+    // URLs
+
+    if (ip_alias) {
+        console.log(`\n  Addresses`);
+        console.log(`    ${chalk.gray(`http://${ip_alias}:${port}`)}`);
+        console.log(`    ${chalk.gray(`https://${port}.${ip_alias}`)}`);
+    }
+
     // Status
 
     const state = data.attributes.current_state;
     const color = colors[state] ?? chalk.gray;
-
-    // @ts-expect-error Intl.DurationFormat is missing from tslib, but is available as of Node v23
-    const intl = new Intl.DurationFormat("en", { style: "narrow" });
-    const uptime: string = intl.format({
-        seconds: Math.floor((data.attributes.resources.uptime / 1000) % 60),
-        minutes: Math.floor((data.attributes.resources.uptime / (1000 * 60)) % 60),
-        hours: Math.floor((data.attributes.resources.uptime / (1000 * 60 * 60)) % 24),
-        days: Math.floor(data.attributes.resources.uptime / (1000 * 60 * 60 * 24)),
-    });
 
     const bytesToMB = (value: number) => Math.floor(value / 1024 / 1024);
     const formatPercent = (value: number, total: number) => `${((value / total) * 100).toFixed(2)}%`;
@@ -92,8 +84,16 @@ export async function status(ctx: Context) {
     const diskLimit = server.attributes.limits.disk; // in MB
 
     console.log(`\n  Status  ${color(state)}`);
-    console.log(chalk.gray(`    uptime  ${uptime}`));
+    console.log(
+        chalk.gray(
+            `    uptime  ${data.attributes.resources.uptime > 0 ? formatUptime(data.attributes.resources.uptime) : "offline"}`,
+        ),
+    );
     console.log(chalk.gray(`    cpu     ${data.attributes.resources.cpu_absolute}%`));
     console.log(chalk.gray(`    memory  ${memory} MB / ${memoryLimit} MB (${formatPercent(memory, memoryLimit)})`));
     console.log(chalk.gray(`    disk    ${disk} MB / ${diskLimit} MB (${formatPercent(disk, diskLimit)})`));
+
+    console.log(
+        chalk.gray(`\n${chalk.underline.magenta(`note:`)} the status might be inconsistent as it is cached for 20s`),
+    );
 }
