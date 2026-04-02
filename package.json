@@ -38,7 +38,7 @@
         "@inquirer/input": "^5.0.10",
         "@inquirer/password": "^5.0.10",
         "@inquirer/select": "^5.1.2",
-        "@voctal/pelican": "^0.5.0",
+        "@voctal/pelican": "^0.6.0",
         "archiver": "^7.0.1",
         "chalk": "^5.3.0",
         "commander": "^12.1.0",
