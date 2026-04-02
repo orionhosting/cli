@@ -1,7 +1,7 @@
 import chalk, { ChalkInstance } from "chalk";
 import ora from "ora";
 import { Context } from "../context";
-import { formatUptime } from "../utils/servers";
+import { formatUptime, getServerNetworkData } from "../utils/servers";
 
 const colors: Record<string, ChalkInstance> = {
     running: chalk.green,
@@ -46,9 +46,7 @@ export async function status(ctx: Context) {
 
     spinner.stop();
 
-    const alloc = server.attributes.relationships?.allocations?.data[0];
-    const ip_alias = alloc?.attributes.ip_alias;
-    const port = alloc?.attributes.port;
+    const { allocation, ip_alias, port } = getServerNetworkData(server);
 
     // Server
 
@@ -56,7 +54,7 @@ export async function status(ctx: Context) {
     console.log(chalk.gray(`    name    ${server.attributes.name}`));
     console.log(chalk.gray(`    node    ${server.attributes.node}`));
 
-    if (alloc) {
+    if (allocation) {
         console.log(chalk.gray(`    addr    ${ip_alias || "unknown"}`));
         console.log(chalk.gray(`    port    ${port}`));
     }
