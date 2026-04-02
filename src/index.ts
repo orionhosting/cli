@@ -2,7 +2,7 @@
 
 import { Command } from "commander";
 import { account } from "./commands/account";
-// import { console as consoleCommand } from "./commands/console";
+import { console as consoleCommand } from "./commands/console";
 import { docs } from "./commands/docs";
 import { link } from "./commands/link";
 import { list } from "./commands/list";
@@ -45,11 +45,11 @@ program.command("docs").description("Open the Orion documentation in your browse
 
 program.command("link").description("Link this directory to a server").action(ctx.buildCommand(link));
 
-// program
-// .command("console")
-// .description("View the server console in real-time")
-// .option("--no-stats", "do not display stats")
-// .action(ctx.buildCommand(consoleCommand));
+program
+    .command("console")
+    .description("View the server console in real-time")
+    .option("--no-stats", "do not display stats")
+    .action(ctx.buildCommand(consoleCommand));
 
 initUpdateNotifier();
 
