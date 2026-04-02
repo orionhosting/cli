@@ -101,7 +101,7 @@ export function ServerLogs({ server, ws }: ServerConsoleProps) {
                 <Box>
                     <Text color="gray">↑↓ logs ^C exit ^R restart ^S stop</Text>
                 </Box>
-            </>
+            </Box>
 
             <Box
                 flexDirection="column"
