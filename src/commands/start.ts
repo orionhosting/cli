@@ -1,4 +1,3 @@
-import { PowerAction } from "@voctal/pelican";
 import chalk from "chalk";
 import ora from "ora";
 import { Context } from "../context";
@@ -38,7 +37,7 @@ export async function start(ctx: Context) {
     spinner.text = "Starting server...\n";
 
     try {
-        await client.servers.sendPowerAction(project.data.serverId, { signal: PowerAction.Start });
+        await client.servers.sendPowerAction(project.data.serverId, { signal: "start" });
     } catch (err) {
         spinner.fail("Failed to start server\n");
         ctx.handleException(err);

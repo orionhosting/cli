@@ -1,4 +1,3 @@
-import { PowerAction } from "@voctal/pelican";
 import chalk from "chalk";
 import ora from "ora";
 import { Context } from "../context";
@@ -33,7 +32,7 @@ export async function restart(ctx: Context) {
     spinner.text = "Restarting server...\n";
 
     try {
-        await client.servers.sendPowerAction(project.data.serverId, { signal: PowerAction.Restart });
+        await client.servers.sendPowerAction(project.data.serverId, { signal: "restart" });
     } catch (err) {
         spinner.fail("Failed to restart server\n");
         ctx.handleException(err);

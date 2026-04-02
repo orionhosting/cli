@@ -1,4 +1,3 @@
-import { PowerAction } from "@voctal/pelican";
 import chalk from "chalk";
 import ora from "ora";
 import { Context } from "../context";
@@ -38,7 +37,7 @@ export async function stop(ctx: Context) {
     spinner.text = "Stopping server...\n";
 
     try {
-        await client.servers.sendPowerAction(project.data.serverId, { signal: PowerAction.Kill });
+        await client.servers.sendPowerAction(project.data.serverId, { signal: "kill" });
     } catch (err) {
         spinner.fail("Failed to stop server\n");
         ctx.handleException(err);
