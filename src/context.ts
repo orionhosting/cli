@@ -1,3 +1,4 @@
+import assert from "node:assert";
 import { inspect } from "node:util";
 import { PelicanClient, PelicanError } from "@voctal/pelican";
 import chalk from "chalk";
@@ -6,7 +7,7 @@ import figures from "figures";
 import figureSet from "figures";
 import pkg from "../package.json";
 import { requireAuth } from "./utils/auth";
-import { PANEL_URL } from "./utils/constants";
+import { API_URL, PANEL_URL } from "./utils/constants";
 import { requireProjectData } from "./utils/projects";
 
 export type RunnableCommand = (ctx: Context, options?: any) => Promise<void>;
@@ -72,6 +73,26 @@ export class Context {
             url: PANEL_URL,
             token: this.token,
         });
+    }
+
+    public async fetchOrionAPI(path: string, init?: RequestInit) {
+        assert(path.startsWith("/"), "path must start with /");
+        const response = await fetch(`${API_URL}/api${path}`, {
+            ...init,
+            headers: {
+                "User-Agent": `orion-cli/${pkg.version}`,
+                Authorization: this.token || undefined,
+            } as Record<string, string>,
+        });
+        if (response.status !== 200) {
+            throw new Error(`Failed to fetch Orion API: ${response.statusText} (${response.status})`);
+        }
+        return response;
+    }
+
+    public async fetchOrionAPIJSON(path: string) {
+        const response = await this.fetchOrionAPI(path);
+        return response.json();
     }
 
     public handleException(error: unknown) {
