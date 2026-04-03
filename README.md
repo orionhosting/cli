@@ -44,6 +44,14 @@ orion account
 
 # List your servers
 orion list
+
+# Open the documentation website
+orion docs
+
+# Manage telemetry
+orion telemetry status
+orion telemetry enable
+orion telemetry disable
 ```
 
 ### Project commands
@@ -71,6 +79,9 @@ orion stop
 
 # Open your server's panel
 orion open
+
+# Open the console inside your terminal
+orion console
 ```
 
 ### Global options
