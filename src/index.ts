@@ -13,6 +13,9 @@ import { restart } from "./commands/restart";
 import { start } from "./commands/start";
 import { status } from "./commands/status";
 import { stop } from "./commands/stop";
+import { telemetryDisable } from "./commands/telemetry/disable";
+import { telemetryEnable } from "./commands/telemetry/enable";
+import { telemetryStatus } from "./commands/telemetry/status";
 import { Context } from "./context";
 import { initUpdateNotifier } from "./utils/updater";
 
@@ -57,34 +60,51 @@ program
 
 program
     .command("list")
-    .description("List your Orion servers")
+    .description("list your Orion servers")
     .action(() => ctx.run(list));
 
 program
     .command("login")
-    .description("Login to your Orion account")
+    .description("login to your Orion account")
     .action(() => ctx.run(login));
 
 program
     .command("logout")
-    .description("Logout from your account")
+    .description("logout from your account")
     .action(() => ctx.run(logout));
 
 program
     .command("docs")
-    .description("Open the Orion documentation in your browser")
+    .description("open the Orion documentation in your browser")
     .action(() => ctx.run(docs));
 
 program
     .command("link")
-    .description("Link this directory to a server")
+    .description("link this directory to a server")
     .action(() => ctx.run(link));
 
 program
     .command("console")
-    .description("View the server console in real-time")
+    .description("view the server console in real-time")
     .option("--no-stats", "do not display stats")
     .action(() => ctx.run(consoleCommand));
+
+const telemetryCommand = program.command("telemetry").description("manage the telemetry config");
+
+telemetryCommand
+    .command("status")
+    .description("view telemetry status")
+    .action(() => ctx.run(telemetryStatus));
+
+telemetryCommand
+    .command("enable")
+    .description("enable telemetry")
+    .action(() => ctx.run(telemetryEnable));
+
+telemetryCommand
+    .command("disable")
+    .description("disable telemetry")
+    .action(() => ctx.run(telemetryDisable));
 
 /*
 program

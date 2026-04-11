@@ -98,6 +98,10 @@ export class Context {
         await auth.save(this.auth);
     }
 
+    public async saveGlobalConfig() {
+        await globalConfig.save(this.globalConfig);
+    }
+
     public async requireProject(): Promise<{
         serverId: string;
         config: ProjectConfig;
