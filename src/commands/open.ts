@@ -10,17 +10,15 @@ import { PANEL_URL } from "../utils/constants";
  * The `open` command.
  */
 export async function open(ctx: Context) {
-    await ctx.auth();
-    const project = await ctx.project();
+    await ctx.requireAuth();
+    const project = await ctx.requireProject();
     const client = ctx.getPelicanClient();
-
-    ctx.printBanner();
 
     const spinner = ora("Fetching server...\n").start();
 
     let server;
     try {
-        server = await client.servers.get(project.data.serverId);
+        server = await client.servers.get(project.serverId);
     } catch (err) {
         spinner.stop();
         ctx.handleException(err);

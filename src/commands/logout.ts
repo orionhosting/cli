@@ -1,20 +1,18 @@
 import chalk from "chalk";
 import figureSet from "figures";
 import { Context } from "../context";
-import { loadOrCreateAuth, saveAuth } from "../utils/auth";
 
+/**
+ * The `logout` command.
+ */
 export async function logout(ctx: Context) {
-    ctx.printBanner();
-
-    const auth = await loadOrCreateAuth();
-
-    if (!auth.token) {
+    if (!ctx.auth.token) {
         console.log(chalk.gray(`${figureSet.cross} You are not logged in.`));
         return;
     }
 
-    auth.token = "";
-    await saveAuth(auth);
+    ctx.setToken(null);
+    await ctx.saveAuth();
 
     console.log(chalk.green(`${figureSet.tick} Logged out`));
 }

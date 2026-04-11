@@ -6,17 +6,15 @@ import { Context } from "../context";
  * The `stop` command.
  */
 export async function stop(ctx: Context) {
-    await ctx.auth();
-    const project = await ctx.project();
+    await ctx.requireAuth();
+    const project = await ctx.requireProject();
     const client = ctx.getPelicanClient();
-
-    ctx.printBanner();
 
     const spinner = ora("Fetching server...\n").start();
 
     let stats;
     try {
-        stats = await client.servers.getResourceUsage(project.data.serverId);
+        stats = await client.servers.getResourceUsage(project.serverId);
     } catch (err) {
         spinner.stop();
         ctx.handleException(err);
@@ -37,7 +35,7 @@ export async function stop(ctx: Context) {
     spinner.text = "Stopping server...\n";
 
     try {
-        await client.servers.sendPowerAction(project.data.serverId, { signal: "kill" });
+        await client.servers.sendPowerAction(project.serverId, { signal: "kill" });
     } catch (err) {
         spinner.fail("Failed to stop server\n");
         ctx.handleException(err);

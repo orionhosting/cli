@@ -2,15 +2,14 @@ import select from "@inquirer/select";
 import chalk from "chalk";
 import figureSet from "figures";
 import ora from "ora";
+import { projectConfig } from "../configs/project";
 import { Context } from "../context";
 import { isExitPromptError } from "../utils/inputs";
-import { addProjectFolderToGitignore, saveProjectData } from "../utils/projects";
+import { addProjectFolderToGitignore } from "../utils/projects";
 
 export async function link(ctx: Context) {
-    await ctx.auth();
+    await ctx.requireAuth();
     const client = ctx.getPelicanClient();
-
-    ctx.printBanner();
 
     const spinner = ora("Fetching servers...\n").start();
 
@@ -52,8 +51,11 @@ export async function link(ctx: Context) {
         throw err;
     }
 
-    const data = { version: 1, serverId };
-    await saveProjectData(data);
+    // Save new config
+    const config = await projectConfig.loadOrDefaults();
+    config.serverId = serverId;
+    await projectConfig.save(config);
+
     const addedToGitignore = await addProjectFolderToGitignore();
 
     const server = servers.data.find(d => d.attributes.identifier === serverId);

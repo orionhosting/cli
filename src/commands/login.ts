@@ -4,16 +4,16 @@ import chalk from "chalk";
 import figureSet from "figures";
 import ora from "ora";
 import { Context } from "../context";
-import { loadOrCreateAuth, saveAuth } from "../utils/auth";
 import { DOCS_URL } from "../utils/constants";
 import { isExitPromptError } from "../utils/inputs";
 
+/**
+ * The `login` command.
+ */
 export async function login(ctx: Context) {
-    ctx.printBanner();
-
-    let token;
+    let newToken;
     try {
-        token = await password(
+        newToken = await password(
             {
                 message: "Your API Token",
                 mask: "*",
@@ -36,10 +36,10 @@ export async function login(ctx: Context) {
         throw err;
     }
 
-    ctx.setToken(token);
+    ctx.setToken(newToken);
     const client = ctx.getPelicanClient();
 
-    const spinner = ora("Verifying token...\n").start();
+    const spinner = ora("Validating token...\n").start();
 
     try {
         await client.account.get();
@@ -58,9 +58,7 @@ export async function login(ctx: Context) {
     spinner.color = "magenta";
     spinner.text = "Saving token to file system...";
 
-    const auth = await loadOrCreateAuth();
-    auth.token = token;
-    await saveAuth(auth);
+    await ctx.saveAuth();
 
     spinner.stop();
 

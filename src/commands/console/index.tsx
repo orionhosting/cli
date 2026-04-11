@@ -8,17 +8,15 @@ import { ServerConsole } from "./console";
  * The `console` command.
  */
 export async function console(ctx: Context) {
-    await ctx.auth();
-    const project = await ctx.project();
+    await ctx.requireAuth();
+    const project = await ctx.requireProject();
     const client = ctx.getPelicanClient();
-
-    ctx.printBanner();
 
     const spinner = ora("Connecting to the console...\n").start();
 
     let server;
     try {
-        server = await client.servers.get(project.data.serverId);
+        server = await client.servers.get(project.serverId);
     } catch (err) {
         spinner.stop();
         ctx.handleException(err);
@@ -27,7 +25,7 @@ export async function console(ctx: Context) {
 
     spinner.stop();
 
-    const ws = new PelicanWebSocket(client, project.data.serverId);
+    const ws = new PelicanWebSocket(client, project.serverId);
 
     render(<ServerConsole ctx={ctx} ws={ws} server={server} />);
 }

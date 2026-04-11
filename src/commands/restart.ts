@@ -6,17 +6,15 @@ import { Context } from "../context";
  * The `restart` command.
  */
 export async function restart(ctx: Context) {
-    await ctx.auth();
-    const project = await ctx.project();
+    await ctx.requireAuth();
+    const project = await ctx.requireProject();
     const client = ctx.getPelicanClient();
-
-    ctx.printBanner();
 
     const spinner = ora("Fetching server...\n").start();
 
     let stats;
     try {
-        stats = await client.servers.getResourceUsage(project.data.serverId);
+        stats = await client.servers.getResourceUsage(project.serverId);
     } catch (err) {
         spinner.stop();
         ctx.handleException(err);
@@ -32,7 +30,7 @@ export async function restart(ctx: Context) {
     spinner.text = "Restarting server...\n";
 
     try {
-        await client.servers.sendPowerAction(project.data.serverId, { signal: "restart" });
+        await client.servers.sendPowerAction(project.serverId, { signal: "restart" });
     } catch (err) {
         spinner.fail("Failed to restart server\n");
         ctx.handleException(err);

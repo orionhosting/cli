@@ -7,11 +7,9 @@ import { Context } from "../context";
  * The `list` command.
  */
 export async function list(ctx: Context) {
-    await ctx.auth();
+    await ctx.requireAuth();
+
     const client = ctx.getPelicanClient();
-
-    ctx.printBanner();
-
     const spinner = ora("Loading servers...\n").start();
 
     let servers;

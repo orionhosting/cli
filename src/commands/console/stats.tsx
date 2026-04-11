@@ -63,11 +63,11 @@ export function ServerStats({ server, ws }: ServerConsoleProps) {
                 <Text color="gray">Network</Text>
                 <Text color="gray">
                     {" "}
-                    ↑ <Text color="green">{stats && (stats.network.tx_bytes / 1024).toFixed(2)} KB/s</Text>
+                    ↑ <Text color="cyan">{stats && (stats.network.tx_bytes / 1024).toFixed(2)} KB</Text>
                 </Text>
                 <Text color="gray">
                     {" "}
-                    ↓ <Text color="cyan">{stats && (stats.network.rx_bytes / 1024).toFixed(2)} KB/s</Text>
+                    ↓ <Text color="green">{stats && (stats.network.rx_bytes / 1024).toFixed(2)} KB</Text>
                 </Text>
                 <Text color="gray"> port {getServerNetworkData(server).port || "unknown"}</Text>
             </Box>

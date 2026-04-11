@@ -15,17 +15,15 @@ const colors: Record<string, ChalkInstance> = {
  * The `status` command.
  */
 export async function status(ctx: Context) {
-    await ctx.auth();
-    const project = await ctx.project();
+    await ctx.requireAuth();
+    const project = await ctx.requireProject();
     const client = ctx.getPelicanClient();
-
-    ctx.printBanner();
 
     const spinner = ora("Fetching server details...\n").start();
 
     let server;
     try {
-        server = await client.servers.get(project.data.serverId);
+        server = await client.servers.get(project.serverId);
     } catch (err) {
         spinner.stop();
         ctx.handleException(err);
@@ -37,7 +35,7 @@ export async function status(ctx: Context) {
 
     let data;
     try {
-        data = await client.servers.getResourceUsage(project.data.serverId);
+        data = await client.servers.getResourceUsage(project.serverId);
     } catch (err) {
         spinner.stop();
         ctx.handleException(err);

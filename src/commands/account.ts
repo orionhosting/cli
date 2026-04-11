@@ -18,11 +18,9 @@ const userSchema = z.object({
  * The `account` command.
  */
 export async function account(ctx: Context) {
-    await ctx.auth();
+    await ctx.requireAuth();
+
     const client = ctx.getPelicanClient();
-
-    ctx.printBanner();
-
     const spinner = ora("Loading account...\n").start();
 
     let account;
@@ -39,7 +37,7 @@ export async function account(ctx: Context) {
         const json = await ctx.fetchOrionAPIJSON("/cli/user");
         user = userSchema.parse(json);
     } catch {
-        // TODO: handle
+        user = "error";
     }
 
     spinner.color = "yellow";
@@ -60,7 +58,9 @@ export async function account(ctx: Context) {
     console.log(chalk.gray(`  ${figureSet.triangleRightSmall} email: ${account.attributes.email}`));
     console.log(chalk.gray(`  ${figureSet.triangleRightSmall} servers: ${servers.meta.pagination.total}`));
 
-    if (user) {
+    if (typeof user === "string") {
+        console.log(chalk.gray(`  ${figureSet.cross} could not load api data`));
+    } else {
         console.log(chalk.gray(`  ${figureSet.triangleRightSmall} credits: ${user.credits}`));
         console.log(chalk.gray(`  ${figureSet.triangleRightSmall} discord id: ${user.discord_id}`));
         console.log(chalk.gray(`  ${figureSet.triangleRightSmall} orion id: ${user.id}`));
