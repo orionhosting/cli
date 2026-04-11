@@ -25,11 +25,13 @@
         "orion": "dist/index.mjs"
     },
     "files": [
+        "configuration_schema.json",
         "dist"
     ],
     "type": "module",
     "scripts": {
-        "build": "tsdown",
+        "build": "npm run build:schema && tsdown",
+        "build:schema": "tsx scripts/json-schema",
         "lint": "tsc --noEmit && oxlint && oxfmt --check",
         "fmt": "oxfmt"
     },
@@ -59,6 +61,7 @@
         "oxfmt": "^0.42.0",
         "oxlint": "^1.57.0",
         "tsdown": "^0.21.7",
+        "tsx": "^4.21.0",
         "typescript": "^5.9.3"
     },
     "engines": {

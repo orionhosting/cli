@@ -21,10 +21,17 @@ export const projectConfig = new ConfigManager({
 });
 
 const deployPipelineStageSchema = z.object({
-    path: z.string().max(255).optional(),
-    clean: z.boolean().optional(),
-    include: z.array(z.string().max(255)).max(255).optional(),
-    exclude: z.array(z.string().max(255)).max(255).optional(),
+    path: z.string().max(255).optional().describe("The root path of the deployment stage"),
+    clean: z
+        .boolean()
+        .optional()
+        .describe("If true, remove all the files from the server before deploying the new version"),
+    include: z.array(z.string().max(255)).max(255).optional().describe("List of files/patterns to deploy"),
+    exclude: z
+        .array(z.string().max(255))
+        .max(255)
+        .optional()
+        .describe("List of files/patterns to ignore. Takes priority over the include option"),
 });
 
 export type ProjectUserConfig = ExtractConfig<typeof projectUserConfig>;
@@ -34,14 +41,20 @@ export type ProjectUserConfig = ExtractConfig<typeof projectUserConfig>;
  */
 export const projectUserConfig = new ConfigManager({
     path: PROJECT_USER_CONFIG_FILE,
-    schema: z.object({
-        $schema: z.string().optional(),
-        deploy: deployPipelineStageSchema
-            .extend({
-                pipeline: z.array(deployPipelineStageSchema).max(20).optional(),
-            })
-            .optional(),
-    }),
+    schema: z
+        .object({
+            $schema: z.string().optional(),
+            deploy: deployPipelineStageSchema
+                .extend({
+                    pipeline: z
+                        .array(deployPipelineStageSchema)
+                        .max(20)
+                        .optional()
+                        .describe("A pipeline of stages for the deployment"),
+                })
+                .optional(),
+        })
+        .meta({ title: "Orion Config", description: "Orion CLI configuration schema" }),
     defaults: () => ({
         $schema: "./node_modules/@orionhosting/cli/configuration_schema.json",
         deploy: {

@@ -13,8 +13,8 @@ export interface ConfigManagerOptions<T> {
 export type ExtractConfig<C> = C extends ConfigManager<infer T> ? T : never;
 
 export class ConfigManager<T> {
-    private readonly path: string;
-    private readonly schema: ZodType<T>;
+    public readonly path: string;
+    public readonly schema: ZodType<T>;
     private readonly version: number;
     private readonly defaults: (config: ConfigManager<T>) => T;
 

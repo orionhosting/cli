@@ -1,5 +1,6 @@
 node_modules
 dist
+configuration_schema.json
 
 # Orion CLI
 .orion/
