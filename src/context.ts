@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import os from "node:os";
+import os, { platform } from "node:os";
 import { inspect } from "node:util";
 import { PelicanClient, PelicanError } from "@voctal/pelican";
 import chalk from "chalk";
@@ -203,10 +203,18 @@ export class Context {
     public printUnauthenticatedError() {
         console.error(chalk.bold.red(`${figures.cross} You are not authenticated`));
         console.error(chalk.gray(`Use ${chalk.magenta("orion login")} to set your token`));
+
+        if (platform() !== "win32") {
+            console.log("");
+        }
     }
 
     public printNotLinkedError() {
         console.error(chalk.bold.red(`${figures.cross} No server linked`));
         console.error(chalk.gray(`Use ${chalk.magenta("orion link")} to link this directory to a server`));
+
+        if (platform() !== "win32") {
+            console.log("");
+        }
     }
 }

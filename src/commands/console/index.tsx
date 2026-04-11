@@ -1,3 +1,4 @@
+import { platform } from "node:os";
 import { PelicanWebSocket } from "@voctal/pelican";
 import { render } from "ink";
 import ora from "ora";
@@ -26,6 +27,13 @@ export async function consoleCommand(ctx: Context, options: CommandOptions<{ sta
     spinner.stop();
 
     const ws = new PelicanWebSocket(client, project.serverId);
+
+    if (platform() !== "win32") {
+        // Fix ink issue
+        // On Linux, the inputs (useInput & ctrl+c) are not detected without these 2 lines
+        process.stdin.setRawMode(true);
+        process.stdin.resume();
+    }
 
     render(<ServerConsole ctx={ctx} ws={ws} server={server} options={options} />);
 }

@@ -52,20 +52,20 @@ export function ServerLogs({ server, ws }: ServerConsoleProps) {
     const visibleLines = process.stdout.rows - 6;
 
     // Keyboard shortcuts
-    useInput((key, input) => {
-        if (input.ctrl && key === "c") {
+    useInput((input, key) => {
+        if (key.ctrl && input === "c") {
             ws.close();
             exit();
         }
 
         // Power Actions
-        if (input.ctrl && key === "r") sendPower("restart");
-        if (input.ctrl && key === "s") sendPower("stop");
+        if (key.ctrl && input === "r") sendPower("restart");
+        if (key.ctrl && input === "s") sendPower("stop");
 
         // Scroll Offset
-        if (input.upArrow) setScrollOffset(o => Math.min(o + 1, Math.max(0, logs.length - visibleLines)));
-        if (input.downArrow) setScrollOffset(o => Math.max(o - 1, 0));
-        if (input.ctrl && key === "d") setScrollOffset(0);
+        if (key.upArrow) setScrollOffset(o => Math.min(o + 1, Math.max(0, logs.length - visibleLines)));
+        if (key.downArrow) setScrollOffset(o => Math.max(o - 1, 0));
+        if (key.ctrl && input === "d") setScrollOffset(0);
     });
 
     const lines = visibleLines - (scrollOffset > 0 ? 1 : 0);
