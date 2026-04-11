@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import os from "node:os";
 import { inspect } from "node:util";
 import { PelicanClient, PelicanError } from "@voctal/pelican";
 import chalk from "chalk";
@@ -6,9 +7,10 @@ import { Command } from "commander";
 import figures from "figures";
 import figureSet from "figures";
 import pkg from "../package.json";
-import { requireAuth } from "./utils/auth";
+import { auth, AuthConfig } from "./configs/auth";
+import { globalConfig, GlobalConfig } from "./configs/global";
+import { ProjectConfig, projectConfig, ProjectUserConfig, projectUserConfig } from "./configs/project";
 import { API_URL, PANEL_URL } from "./utils/constants";
-import { requireProjectData } from "./utils/projects";
 
 export type RunnableCommand = (ctx: Context, options?: any) => Promise<void>;
 
@@ -17,57 +19,113 @@ export type RunnableCommand = (ctx: Context, options?: any) => Promise<void>;
  */
 export class Context {
     /**
+     * The CLI.
+     */
+    public readonly cli: Command;
+
+    /**
      * The CLI's package.json.
      */
     public readonly pkg = pkg;
 
-    private token: string | null = null;
-    private serverId: string | null = null;
+    public readonly auth: AuthConfig;
+    public readonly globalConfig: GlobalConfig;
 
-    public constructor(public readonly cli: Command) {
-        // Temp
-        this.serverId ??= "";
+    /**
+     * The pelican token. Will be the one in the --token option
+     * or the one in the auth file if the option was not provided.
+     */
+    private token: AuthConfig["token"] = null;
+
+    /**
+     * The pelican server id. Will be the one in the --server option
+     * or the one in the project config file if the option was not provided.
+     */
+    private serverId: ProjectConfig["serverId"] = null;
+
+    private constructor(cli: Command, auth: AuthConfig, globalConfig: GlobalConfig) {
+        this.cli = cli;
+        this.auth = auth;
+        this.globalConfig = globalConfig;
+        this.token = this.auth.token;
     }
 
-    public buildCommand(action: RunnableCommand): () => Promise<void> {
-        return async () => {
-            const options = this.cli.opts();
-
-            if (options.token) this.token = options.token;
-            if (options.server) this.serverId = options.serverId;
-
-            try {
-                await action(this);
-            } catch (err) {
-                this.handleException(err);
-            }
-        };
+    public static async from(cli: Command) {
+        return new Context(cli, await auth.loadOrCreate(), await globalConfig.loadOrCreate());
     }
 
-    public printBanner() {
-        console.log(chalk.magenta(`\n${figureSet.triangleDown} ${"Orion CLI"} ${this.pkg.version}\n`));
+    public async run(action: RunnableCommand): Promise<void> {
+        const commandName = this.cli.args[0];
+        if (!commandName) throw new Error("no command provided");
+
+        // Global options
+        const options = this.cli.opts();
+        if (typeof options.token === "string") this.token = options.token;
+        if (typeof options.server === "string") this.serverId = options.server;
+
+        // Telemetry
+        if (this.globalConfig.telemetry.enabled) {
+            // TODO: handle the error
+            this.sendUsageTelemetry(commandName).catch(() => null);
+        }
+
+        this.printBanner();
+
+        try {
+            await action(this);
+        } catch (err) {
+            this.handleException(err);
+        }
     }
 
-    public async auth() {
-        const auth = await requireAuth();
-        this.token = auth.token;
-        return auth;
+    private printBanner() {
+        console.log(chalk.magenta(`\n${figureSet.triangleDown} Orion CLI ${this.pkg.version}\n`));
     }
 
-    public async project() {
-        const data = await requireProjectData();
-
-        return {
-            data,
-        };
+    public async requireAuth() {
+        if (!this.token) {
+            this.printUnauthenticatedError();
+            process.exit(1);
+        }
     }
 
-    public setToken(token: string) {
+    public setToken(token: AuthConfig["token"]) {
+        this.auth.token = token;
         this.token = token;
     }
 
+    public async saveAuth() {
+        await auth.save(this.auth);
+    }
+
+    public async requireProject(): Promise<{
+        serverId: string;
+        config: ProjectConfig;
+        userConfig: ProjectUserConfig;
+    }> {
+        const config = await projectConfig.load();
+        if (!config) {
+            this.printNotLinkedError();
+            process.exit(1);
+        }
+
+        const serverId = this.serverId || config.serverId;
+        if (!serverId) {
+            this.printNotLinkedError();
+            process.exit(1);
+        }
+
+        const userConfig = await projectUserConfig.loadOrDefaults();
+
+        return {
+            serverId,
+            config,
+            userConfig,
+        };
+    }
+
     public getPelicanClient() {
-        if (!this.token) throw new Error("bro");
+        assert(this.token, "no token set");
 
         return new PelicanClient({
             url: PANEL_URL,
@@ -77,16 +135,20 @@ export class Context {
 
     public async fetchOrionAPI(path: string, init?: RequestInit) {
         assert(path.startsWith("/"), "path must start with /");
+
         const response = await fetch(`${API_URL}/api${path}`, {
             ...init,
             headers: {
+                ...init?.headers,
                 "User-Agent": `orion-cli/${pkg.version}`,
                 Authorization: this.token || undefined,
             } as Record<string, string>,
         });
+
         if (response.status !== 200) {
             throw new Error(`Failed to fetch Orion API: ${response.statusText} (${response.status})`);
         }
+
         return response;
     }
 
@@ -95,11 +157,27 @@ export class Context {
         return response.json();
     }
 
+    public async sendUsageTelemetry(command: string) {
+        await this.fetchOrionAPI("/telemetry/cli", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                ver: this.pkg.version,
+                nodever: process.version.slice(1),
+                os: os.platform(),
+                ci: false,
+                cmd: command,
+                opts: [],
+            }),
+        });
+    }
+
     public handleException(error: unknown) {
         if (error instanceof PelicanError) {
             if (error.status === 401) {
-                console.error(chalk.bold.red(`${figures.cross} You are not authenticated`));
-                console.error(chalk.gray("Use `orion login` or the global option `--token <TOKEN>`"));
+                this.printUnauthenticatedError();
             } else if (error.status === 404) {
                 console.error(chalk.bold.red(`${figures.cross} The linked server does not exist`));
                 console.error(chalk.gray("Use `orion link` to re-link the project"));
@@ -114,5 +192,15 @@ export class Context {
         console.error("");
 
         process.exit(1);
+    }
+
+    public printUnauthenticatedError() {
+        console.error(chalk.bold.red(`${figures.cross} You are not authenticated`));
+        console.error(chalk.gray(`Use ${chalk.magenta("orion login")} to set your token`));
+    }
+
+    public printNotLinkedError() {
+        console.error(chalk.bold.red(`${figures.cross} No server linked`));
+        console.error(chalk.gray(`Use ${chalk.magenta("orion link")} to link this directory to a server`));
     }
 }
