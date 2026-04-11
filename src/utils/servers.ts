@@ -1,7 +1,12 @@
 import { ClientServer } from "@voctal/pelican";
 
+/**
+ * Format a server's uptime.
+ *
+ * @param value - Milliseconds
+ */
 export const formatUptime = (value: number) => {
-    // @ts-expect-error Intl.DurationFormat is missing from tslib, but is available as of Node v23
+    // @ts-expect-error DurationFormat does not exist in TS v5
     const intl = new Intl.DurationFormat("en", { style: "narrow" });
     const uptime: string = intl.format({
         seconds: Math.floor((value / 1000) % 60),
@@ -12,6 +17,9 @@ export const formatUptime = (value: number) => {
     return uptime;
 };
 
+/**
+ * Get the server network properties.
+ */
 export const getServerNetworkData = (server: ClientServer) => {
     const alloc = server.attributes.relationships?.allocations?.data[0];
     const ip_alias = alloc?.attributes.ip_alias;
