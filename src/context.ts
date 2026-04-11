@@ -12,7 +12,9 @@ import { globalConfig, GlobalConfig } from "./configs/global";
 import { ProjectConfig, projectConfig, ProjectUserConfig, projectUserConfig } from "./configs/project";
 import { API_URL, PANEL_URL } from "./utils/constants";
 
-export type RunnableCommand = (ctx: Context, options?: any) => Promise<void>;
+export type RunnableCommand = (ctx: Context, options: CommandOptions<any>) => Promise<void>;
+
+export type CommandOptions<T extends {} = {}> = T;
 
 /**
  * Global context for the CLI.
@@ -54,12 +56,12 @@ export class Context {
         return new Context(cli, await auth.loadOrCreate(), await globalConfig.loadOrCreate());
     }
 
-    public async run(action: RunnableCommand): Promise<void> {
+    public async run(action: RunnableCommand, commandOptions: unknown): Promise<void> {
         const commandName = this.cli.args[0];
         if (!commandName) throw new Error("no command provided");
 
         // Global options
-        const options = this.cli.opts();
+        const options = this.cli.opts<Record<string, string | undefined>>();
         if (typeof options.token === "string") this.token = options.token;
         if (typeof options.server === "string") this.serverId = options.server;
 
@@ -72,7 +74,7 @@ export class Context {
         this.printBanner();
 
         try {
-            await action(this);
+            await action(this, commandOptions as CommandOptions);
         } catch (err) {
             this.handleException(err);
         }

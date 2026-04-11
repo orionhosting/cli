@@ -2,7 +2,7 @@
 
 import { Command } from "commander";
 import { account } from "./commands/account";
-import { console as consoleCommand } from "./commands/console";
+import { consoleCommand } from "./commands/console";
 import { docs } from "./commands/docs";
 import { link } from "./commands/link";
 import { list } from "./commands/list";
@@ -31,80 +31,80 @@ program.option("--token <TOKEN>", "The token to use").option("--server <SERVER_I
 program
     .command("status")
     .description("show the state of the server")
-    .action(() => ctx.run(status));
+    .action(options => ctx.run(status, options));
 
 program
     .command("account")
     .description("view the logged in account details")
-    .action(() => ctx.run(account));
+    .action(options => ctx.run(account, options));
 
 program
     .command("open")
     .description("open your server's panel")
-    .action(() => ctx.run(open));
+    .action(options => ctx.run(open, options));
 
 program
     .command("start")
     .description("start the Orion server")
-    .action(() => ctx.run(start));
+    .action(options => ctx.run(start, options));
 
 program
     .command("stop")
     .description("stop the Orion server")
-    .action(() => ctx.run(stop));
+    .action(options => ctx.run(stop, options));
 
 program
     .command("restart")
     .description("start or restart the Orion server")
-    .action(() => ctx.run(restart));
+    .action(options => ctx.run(restart, options));
 
 program
     .command("list")
     .description("list your Orion servers")
-    .action(() => ctx.run(list));
+    .action(options => ctx.run(list, options));
 
 program
     .command("login")
     .description("login to your Orion account")
-    .action(() => ctx.run(login));
+    .action(options => ctx.run(login, options));
 
 program
     .command("logout")
     .description("logout from your account")
-    .action(() => ctx.run(logout));
+    .action(options => ctx.run(logout, options));
 
 program
     .command("docs")
     .description("open the Orion documentation in your browser")
-    .action(() => ctx.run(docs));
+    .action(options => ctx.run(docs, options));
 
 program
     .command("link")
     .description("link this directory to a server")
-    .action(() => ctx.run(link));
+    .action(options => ctx.run(link, options));
 
 program
     .command("console")
     .description("view the server console in real-time")
     .option("--no-stats", "do not display stats")
-    .action(() => ctx.run(consoleCommand));
+    .action(options => ctx.run(consoleCommand, options));
 
 const telemetryCommand = program.command("telemetry").description("manage the telemetry config");
 
 telemetryCommand
     .command("status")
     .description("view telemetry status")
-    .action(() => ctx.run(telemetryStatus));
+    .action(options => ctx.run(telemetryStatus, options));
 
 telemetryCommand
     .command("enable")
     .description("enable telemetry")
-    .action(() => ctx.run(telemetryEnable));
+    .action(options => ctx.run(telemetryEnable, options));
 
 telemetryCommand
     .command("disable")
     .description("disable telemetry")
-    .action(() => ctx.run(telemetryDisable));
+    .action(options => ctx.run(telemetryDisable, options));
 
 /*
 program
