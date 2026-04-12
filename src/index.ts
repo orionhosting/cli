@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
+import "dotenv/config";
 import { Command } from "commander";
 import { account } from "./commands/account";
 import { consoleCommand } from "./commands/console";
+import { deploy } from "./commands/deploy";
 import { docs } from "./commands/docs";
 import { link } from "./commands/link";
 import { list } from "./commands/list";
@@ -26,7 +28,10 @@ const ctx = await Context.from(program);
 
 program.name("orion").description("Deploy your projects from your terminal").version(ctx.pkg.version, "-v, --version");
 
-program.option("--token <TOKEN>", "The token to use").option("--server <SERVER_ID>", "The server ID");
+program
+    .option("--token <TOKEN>", "The token to use")
+    .option("--server <SERVER_ID>", "The server ID")
+    .option("--ci", "Disable all interactive questions for CI/CD");
 
 program
     .command("status")
@@ -106,11 +111,9 @@ telemetryCommand
     .description("disable telemetry")
     .action(options => ctx.run(telemetryDisable, options));
 
-/*
 program
     .command("deploy")
-    .description("Deploy the current directory to your server")
-    .action(options => deploy(ctx));
-*/
+    .description("deploy the current directory to your server")
+    .action(options => ctx.run(deploy, options));
 
 program.parse();

@@ -3,7 +3,7 @@ import { GLOBAL_CONFIG_FILE } from "../utils/paths";
 import { ConfigManager, ExtractConfig } from "./manager";
 
 export enum AlertFlags {
-    FirstDeploy = 1 << 0,
+    FirstDeployment = 1 << 0,
 }
 
 export type GlobalConfig = ExtractConfig<typeof globalConfig>;
