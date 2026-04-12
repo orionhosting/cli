@@ -2,7 +2,7 @@ import select from "@inquirer/select";
 import chalk from "chalk";
 import figureSet from "figures";
 import ora from "ora";
-import { projectConfig } from "../configs/project";
+import { projectConfig, projectUserConfig } from "../configs/project";
 import { Context } from "../context";
 import { isExitPromptError } from "../utils/inputs";
 import { addProjectFolderToGitignore } from "../utils/projects";
@@ -56,6 +56,8 @@ export async function link(ctx: Context) {
     config.serverId = serverId;
     await projectConfig.save(config);
 
+    await projectUserConfig.loadOrCreate();
+
     const addedToGitignore = await addProjectFolderToGitignore();
 
     const server = servers.data.find(d => d.attributes.identifier === serverId);
@@ -66,6 +68,7 @@ export async function link(ctx: Context) {
         ),
     );
 
+    console.log(chalk.gray(`  ${figureSet.triangleRightSmall} Added: orion.config.json`));
     console.log(chalk.gray(`  ${figureSet.triangleRightSmall} Server ID saved to .orion/project.json`));
 
     if (addedToGitignore) console.log(chalk.gray(`  ${figureSet.triangleRightSmall} Added .orion/ to .gitignore`));
