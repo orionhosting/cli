@@ -4,3 +4,4 @@ configuration_schema.json
 
 # Orion CLI
 .orion/
+orion.config.json
