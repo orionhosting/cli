@@ -86,10 +86,13 @@ orion console
 
 ### Global options
 
-All commands accepts both `--token <TOKEN>` and `--server <SERVER_ID>` options
-which let you use the CLI without the need to run `orion login` and `orion link`.
+| Option                 | Environment Variable | Description                             |
+| ---------------------- | -------------------- | --------------------------------------- |
+| `--token <TOKEN>`      | `ORION_TOKEN`        | Set the token                           |
+| `--server <SERVER_ID>` | `ORION_SERVER_ID`    | Set the linked-server ID                |
+| `--ci`                 | `CI`                 | Disable all interactive inputs in CI/CD |
 
-These options are made to be used inside CI/CD workflows like GitHub Actions, to e.g. automatically deploy your project on push.
+These options are made to be used as an alternative to `orion login` and `orion link`, especially inside CI/CD workflows like GitHub Actions, to e.g. automatically deploy your project on push.
 
 ## Links
 
