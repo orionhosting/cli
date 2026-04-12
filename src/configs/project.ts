@@ -59,7 +59,7 @@ export const projectUserConfig = new ConfigManager({
         $schema: "./node_modules/@orionhosting/cli/configuration_schema.json",
         deploy: {
             clean: true,
-            exclude: ["node_modules", ".env", "dist"],
+            exclude: ["node_modules", "dist", ".git", ".env", "*.log"],
         },
     }),
 });
