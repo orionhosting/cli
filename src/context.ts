@@ -16,6 +16,12 @@ export type RunnableCommand = (ctx: Context, options: CommandOptions<any>) => Pr
 
 export type CommandOptions<T extends {} = {}> = T;
 
+export interface Project {
+    serverId: string;
+    config: ProjectConfig;
+    userConfig: ProjectUserConfig;
+}
+
 /**
  * Global context for the CLI.
  */
@@ -45,11 +51,26 @@ export class Context {
      */
     private serverId: ProjectConfig["serverId"] = null;
 
+    /**
+     * If we are in a CI/CD environment.
+     */
+    public isCI = false;
+
     private constructor(cli: Command, auth: AuthConfig, globalConfig: GlobalConfig) {
         this.cli = cli;
         this.auth = auth;
         this.globalConfig = globalConfig;
         this.token = this.auth.token;
+
+        if (typeof process.env.ORION_TOKEN === "string") {
+            this.token = process.env.ORION_TOKEN;
+        }
+        if (typeof process.env.ORION_SERVER_ID === "string") {
+            this.serverId = process.env.ORION_SERVER_ID;
+        }
+        if (process.env.CI === "true") {
+            this.isCI = true;
+        }
     }
 
     public static async from(cli: Command) {
@@ -64,6 +85,7 @@ export class Context {
         const options = this.cli.opts<Record<string, string | undefined>>();
         if (typeof options.token === "string") this.token = options.token;
         if (typeof options.server === "string") this.serverId = options.server;
+        if (options.ci) this.isCI = true;
 
         // Telemetry
         if (this.globalConfig.telemetry.enabled) {
@@ -104,11 +126,7 @@ export class Context {
         await globalConfig.save(this.globalConfig);
     }
 
-    public async requireProject(): Promise<{
-        serverId: string;
-        config: ProjectConfig;
-        userConfig: ProjectUserConfig;
-    }> {
+    public async requireProject(): Promise<Project> {
         const config = await projectConfig.load();
         if (!config) {
             this.printNotLinkedError();
