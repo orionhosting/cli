@@ -228,9 +228,6 @@ async function runPowerAction(
 }
 
 async function firstDeploymentAlert(ctx: Context) {
-    ctx.globalConfig.alertFlags = 0;
-    await ctx.saveGlobalConfig();
-
     if (ctx.isCI) return;
 
     if ((ctx.globalConfig.alertFlags & AlertFlags.FirstDeployment) !== 0) {
