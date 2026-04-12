@@ -56,7 +56,7 @@ export const projectUserConfig = new ConfigManager({
         })
         .meta({ title: "Orion Config", description: "Orion CLI configuration schema" }),
     defaults: () => ({
-        $schema: "./node_modules/@orionhosting/cli/configuration_schema.json",
+        $schema: "https://orionhost.xyz/cli.schema.json",
         deploy: {
             clean: true,
             exclude: ["node_modules", "dist", ".git", ".env", "*.log"],
