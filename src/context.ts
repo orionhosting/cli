@@ -11,6 +11,7 @@ import { auth, AuthConfig } from "./configs/auth";
 import { globalConfig, GlobalConfig } from "./configs/global";
 import { ProjectConfig, projectConfig, ProjectUserConfig, projectUserConfig } from "./configs/project";
 import { API_URL, PANEL_URL } from "./utils/constants";
+import { PROJECT_USER_CONFIG_FILE_NAME } from "./utils/paths";
 
 export type RunnableCommand = (ctx: Context, options: CommandOptions<any>) => Promise<void>;
 
@@ -139,7 +140,16 @@ export class Context {
             process.exit(1);
         }
 
-        const userConfig = await projectUserConfig.loadOrDefaults();
+        let userConfig;
+        if (projectUserConfig.exists()) {
+            userConfig = await projectUserConfig.load();
+            if (!userConfig) {
+                this.printInvalidUserConfigError();
+                process.exit(1);
+            }
+        } else {
+            userConfig = await projectUserConfig.loadOrDefaults();
+        }
 
         return {
             serverId,
@@ -230,6 +240,17 @@ export class Context {
     public printNotLinkedError() {
         console.error(chalk.bold.red(`${figures.cross} No server linked`));
         console.error(chalk.gray(`Use ${chalk.magenta("orion link")} to link this directory to a server`));
+
+        if (platform() !== "win32") {
+            console.log("");
+        }
+    }
+
+    public printInvalidUserConfigError() {
+        console.error(chalk.bold.red(`${figures.cross} Invalid configuration file`));
+        console.error(chalk.gray(`Your ${PROJECT_USER_CONFIG_FILE_NAME} file is invalid. You can:`));
+        console.error(chalk.gray(`  - Fix it manually`));
+        console.error(chalk.gray(`  - Delete it and use ${chalk.magenta("orion link")} to create a new one`));
 
         if (platform() !== "win32") {
             console.log("");
