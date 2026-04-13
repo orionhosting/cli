@@ -191,7 +191,7 @@ export class Context {
                 ver: this.pkg.version,
                 nodever: process.version.slice(1),
                 os: os.platform(),
-                ci: false,
+                ci: this.isCI,
                 cmd: command,
                 opts: [],
             }),
