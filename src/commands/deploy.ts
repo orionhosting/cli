@@ -73,11 +73,12 @@ export async function deploy(ctx: Context) {
             failText: "Stop failed",
         });
 
+        await compressFiles(ctx, deploymentConfig);
+
         if (project.userConfig.deploy?.clean) {
             await cleanServerFiles(ctx, deploymentConfig);
         }
 
-        await compressFiles(ctx, deploymentConfig);
         await uploadFiles(ctx, deploymentConfig);
         await decompressFiles(ctx, deploymentConfig);
         await cleanLocalFiles(ctx, deploymentConfig);
@@ -188,7 +189,7 @@ async function uploadFiles(_ctx: Context, config: DeploymentConfig) {
 
         uploadSpinner.succeed("Project uploaded");
     } catch (err) {
-        uploadSpinner.fail("Upload failed");
+        uploadSpinner.fail("Upload failed (maybe your server's storage is full?)");
         throw err;
     }
 }
