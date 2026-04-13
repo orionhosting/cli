@@ -22,10 +22,11 @@ export function zipDirectory(sourceDir: string, outputPath: string, ignore: stri
 
         archive.glob("**/*", {
             cwd: sourceDir,
-            ignore: allIgnore.map(p =>
-                // support both folder names and globs
-                p.includes("/") || p.includes("*") ? p : `${p}/**`,
-            ),
+            ignore: allIgnore.flatMap(p => {
+                if (p.includes("/") || p.includes("**")) return [p];
+                if (p.startsWith("*.")) return [`**/${p}`];
+                return [`**/${p}`, `**/${p}/**`, `${p}`, `${p}/**`];
+            }),
             dot: true,
         });
 
