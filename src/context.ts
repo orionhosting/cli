@@ -128,7 +128,7 @@ export class Context {
     }
 
     public async requireProject(): Promise<Project> {
-        const config = await projectConfig.load();
+        const config = await projectConfig.loadOrDefaults();
         if (!config) {
             this.printNotLinkedError();
             process.exit(1);
