@@ -109,7 +109,10 @@ async function cleanServerFiles(_ctx: Context, config: DeploymentConfig) {
     const specialIgnore = ["node_modules", ".npm", ".npm-global", ".local", ".cache"];
 
     try {
-        const list = await config.client.files.list(config.project.serverId, config.remoteDir);
+        const list = await config.client.files.list(
+            config.project.serverId,
+            config.remoteDir === "/" ? undefined : config.remoteDir,
+        );
 
         const toDelete = getDeletableFiles(
             list.data.map(d => d.attributes.name),
