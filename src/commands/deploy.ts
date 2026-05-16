@@ -138,7 +138,7 @@ async function compressFiles(_ctx: Context, config: DeploymentConfig) {
 
     try {
         await makeDirectory(config.archivePath);
-        await zipDirectory(config.projectDir, config.archivePath, config.project.userConfig.deploy?.exclude ?? []);
+        await zipDirectory(config.projectDir, config.archivePath, config.project.userConfig.deploy?.exclude ?? [], config.project.userConfig.deploy?.include ?? []);
 
         const sizeMb = statSync(config.archivePath).size / 1024 / 1024;
         const sizeMbString = sizeMb.toFixed(2);

@@ -1,12 +1,15 @@
 import { createWriteStream } from "node:fs";
 import archiver from "archiver";
+import { minimatch } from "minimatch";
+import { getAllFiles } from "./files";
+import { join } from "node:path";
 
 const DEFAULT_IGNORE = ["node_modules", ".git"];
 
 /**
  * Zip a directory.
  */
-export function zipDirectory(sourceDir: string, outputPath: string, ignore: string[]): Promise<void> {
+export function zipDirectory(sourceDir: string, outputPath: string, ignore: string[], include: string[]): Promise<void> {
     return new Promise((resolve, reject) => {
         const output = createWriteStream(outputPath);
         const archive = archiver("zip", { zlib: { level: 9 } });
@@ -20,23 +23,31 @@ export function zipDirectory(sourceDir: string, outputPath: string, ignore: stri
         archive.on("error", reject);
         archive.pipe(output);
 
-        archive.glob("**/*", {
-            cwd: sourceDir,
-            ignore: allIgnore.flatMap(p => {
-                if (p.includes("/") || p.includes("**")) return [p];
-                if (p.startsWith("*.")) return [`**/${p}`];
-                return [`**/${p}`, `**/${p}/**`, `${p}`, `${p}/**`];
-            }),
-            dot: true,
-        });
+        const allFiles = getAllFiles(sourceDir, "");
+
+        for (const filePath of allFiles) {
+            const isIgnored = allIgnore.some(pattern => 
+                minimatch(filePath, pattern, { dot: true, matchBase: true }) ||
+                minimatch(filePath + "/**", pattern, { dot: true })
+            );
+
+            if (isIgnored) continue;
+
+            if (include.length > 0) {
+                const isIncluded = include.some(pattern => 
+                    minimatch(filePath, pattern, { dot: true, matchBase: true })
+                );
+
+                if (!isIncluded) continue;
+            }
+
+            const fullPath = join(sourceDir, filePath);
+            archive.file(fullPath, { name: filePath });
+        }
 
         archive.finalize();
     });
 }
-
-// Paths patterns utils
-
-import { minimatch } from "minimatch";
 
 export function getDeletableFiles(rootFiles: string[], exclude: string[]) {
     const toDelete = rootFiles.filter(item => {
