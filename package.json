@@ -11,15 +11,15 @@
         "orion",
         "voctal"
     ],
-    "homepage": "https://github.com/voctal/orion-cli",
+    "homepage": "https://github.com/orionhosting/cli",
     "bugs": {
-        "url": "https://github.com/voctal/orion-cli/issues"
+        "url": "https://github.com/orionhosting/cli/issues"
     },
     "license": "GPL-3.0-only",
-    "author": "voctal",
+    "author": "orionhosting",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/voctal/orion-cli.git"
+        "url": "git+https://github.com/orionhosting/cli.git"
     },
     "bin": {
         "orion": "dist/index.mjs"

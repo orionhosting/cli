@@ -5,7 +5,7 @@
         <a href="https://orionhost.xyz/discord"><img src="https://img.shields.io/discord/1306734190238371860?color=5865F2&logo=discord&logoColor=white" alt="Discord server" /></a>
         <a href="https://www.npmjs.com/package/@orionhosting/cli"><img src="https://img.shields.io/npm/v/@orionhosting/cli.svg?maxAge=3600" alt="npm version" /></a>
         <a href="https://www.npmjs.com/package/@orionhosting/cli"><img src="https://img.shields.io/npm/dt/@orionhosting/cli.svg?maxAge=3600" alt="npm downloads" /></a>
-        <a href="https://github.com/voctal/orion-cli/commits/main"><img alt="Last commit" src="https://img.shields.io/github/last-commit/voctal/orion-cli?logo=github&logoColor=ffffff" /></a>
+        <a href="https://github.com/orionhosting/cli/commits/main"><img alt="Last commit" src="https://img.shields.io/github/last-commit/orionhosting/cli?logo=github&logoColor=ffffff" /></a>
     </p>
 </div>
 
@@ -96,8 +96,9 @@ These options are made to be used as an alternative to `orion login` and `orion 
 
 ## Links
 
+- [Orion Hosting](https://orionhost.xyz)
 - [Orion Discord](https://orionhost.xyz/discord)
-- [GitHub](https://github.com/voctal/orion-cli)
+- [GitHub](https://github.com/orionhosting/cli)
 - [npm](https://npmjs.com/package/@orionhosting/cli)
 - [Voctal](https://voctal.dev)
 - [Octara](https://octara.xyz)
