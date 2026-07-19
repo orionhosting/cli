@@ -66,6 +66,9 @@ export async function deploy(ctx: Context) {
     );
 
     try {
+        await compressFiles(ctx, deploymentConfig);
+        await uploadFiles(ctx, deploymentConfig);
+
         await runPowerAction(ctx, deploymentConfig, {
             signal: "kill",
             loadingText: "Stopping server...",
@@ -73,13 +76,10 @@ export async function deploy(ctx: Context) {
             failText: "Stop failed",
         });
 
-        await compressFiles(ctx, deploymentConfig);
-
         if (project.userConfig.deploy?.clean) {
             await cleanServerFiles(ctx, deploymentConfig);
         }
 
-        await uploadFiles(ctx, deploymentConfig);
         await decompressFiles(ctx, deploymentConfig);
         await cleanLocalFiles(ctx, deploymentConfig);
 
@@ -106,7 +106,7 @@ async function cleanServerFiles(_ctx: Context, config: DeploymentConfig) {
     const cleanSpinner = ora("Cleaning server files...").start();
 
     // special folder that should not be automatically deleted (i guess)
-    const specialIgnore = ["node_modules", ".npm", ".npm-global", ".local", ".cache"];
+    const specialIgnore = ["node_modules", ".npm", ".npm-global", ".local", ".cache", REMOTE_ARCHIVE_NAME];
 
     try {
         const list = await config.client.files.list(
