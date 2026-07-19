@@ -16,6 +16,22 @@ import { getDeletableFiles, zipDirectory } from "../utils/zip";
 
 const REMOTE_ARCHIVE_NAME = "orion-deployment.zip";
 
+function formatDuration(ms: number) {
+    return `${(ms / 1000).toFixed(1)}s`;
+}
+
+function formatBytes(bytes: number) {
+    return `${(bytes / 1024 / 1024).toFixed(2)}MB`;
+}
+
+function startElapsedTimer(spinner: ReturnType<typeof ora>, startedAt: number, baseText: string) {
+    const timer = setInterval(() => {
+        spinner.text = `${baseText} ${chalk.gray(`(${formatDuration(Date.now() - startedAt)})`)}`;
+    }, 100);
+
+    return () => clearInterval(timer);
+}
+
 interface DeploymentConfig {
     client: PelicanClient;
     project: Project;
@@ -104,6 +120,8 @@ export async function deploy(ctx: Context) {
 
 async function cleanServerFiles(_ctx: Context, config: DeploymentConfig) {
     const cleanSpinner = ora("Cleaning server files...").start();
+    const startedAt = Date.now();
+    const stopTimer = startElapsedTimer(cleanSpinner, startedAt, "Cleaning server files...");
 
     // special folder that should not be automatically deleted (i guess)
     const specialIgnore = ["node_modules", ".npm", ".npm-global", ".local", ".cache", REMOTE_ARCHIVE_NAME];
@@ -126,37 +144,59 @@ async function cleanServerFiles(_ctx: Context, config: DeploymentConfig) {
             });
         }
 
-        cleanSpinner.succeed("Server files cleaned");
+        stopTimer();
+        cleanSpinner.succeed(`Server files cleaned ${chalk.gray(`(${formatDuration(Date.now() - startedAt)})`)}`);
     } catch (err) {
-        cleanSpinner.fail("Server files clean failed");
+        stopTimer();
+        cleanSpinner.fail(`Server files clean failed ${chalk.gray(`(${formatDuration(Date.now() - startedAt)})`)}`);
         throw err;
     }
 }
 
 async function compressFiles(_ctx: Context, config: DeploymentConfig) {
     const compressSpinner = ora("Compressing project...").start();
+    const startedAt = Date.now();
+    const progressTextPrefix = "Compressing project...";
 
     try {
         await makeDirectory(config.archivePath);
-        await zipDirectory(config.projectDir, config.archivePath, config.project.userConfig.deploy?.exclude ?? []);
+        await zipDirectory(
+            config.projectDir,
+            config.archivePath,
+            config.project.userConfig.deploy?.exclude ?? [],
+            progress => {
+                let progressInfo;
+                if (progress.totalBytes > 0) {
+                    progressInfo = `${formatBytes(progress.processedBytes)} / ${formatBytes(progress.totalBytes)} (${progress.percent.toFixed(1)}%)`;
+                } else {
+                    progressInfo = `${formatBytes(progress.processedBytes)}`;
+                }
+
+                compressSpinner.text = `${progressTextPrefix} ${chalk.greenBright(progressInfo)} (${formatDuration(Date.now() - startedAt)})`;
+            },
+        );
 
         const sizeMb = statSync(config.archivePath).size / 1024 / 1024;
         const sizeMbString = sizeMb.toFixed(2);
 
         if (sizeMb >= 100) {
-            compressSpinner.fail(`Project too big (${sizeMbString} MB / 100 MB)`);
+            compressSpinner.fail(
+                `Project too big (${sizeMbString} MB / 100 MB, ${formatDuration(Date.now() - startedAt)})`,
+            );
             process.exit(1);
         }
 
-        compressSpinner.succeed(`Project compressed ${chalk.gray(`(${sizeMbString} MB)`)}`);
+        compressSpinner.succeed(`Project compressed (${sizeMbString} MB, ${formatDuration(Date.now() - startedAt)})`);
     } catch (err) {
-        compressSpinner.fail("Failed to compress project");
+        compressSpinner.fail(`Failed to compress project (${formatDuration(Date.now() - startedAt)})`);
         throw err;
     }
 }
 
 async function decompressFiles(_ctx: Context, config: DeploymentConfig) {
     const decompressSpinner = ora("Extracting archive...").start();
+    const startedAt = Date.now();
+    const stopTimer = startElapsedTimer(decompressSpinner, startedAt, "Extracting archive...");
 
     try {
         await config.client.files.decompress(config.project.serverId, {
@@ -164,15 +204,19 @@ async function decompressFiles(_ctx: Context, config: DeploymentConfig) {
             root: config.remoteDir,
         });
 
-        decompressSpinner.succeed("Archive extracted");
+        stopTimer();
+        decompressSpinner.succeed(`Archive extracted ${chalk.gray(`(${formatDuration(Date.now() - startedAt)})`)}`);
     } catch (err) {
-        decompressSpinner.fail("Extraction failed");
+        stopTimer();
+        decompressSpinner.fail(`Extraction failed ${chalk.gray(`(${formatDuration(Date.now() - startedAt)})`)}`);
         throw err;
     }
 }
 
 async function uploadFiles(_ctx: Context, config: DeploymentConfig) {
     const uploadSpinner = ora("Uploading project...").start();
+    const startedAt = Date.now();
+    const stopTimer = startElapsedTimer(uploadSpinner, startedAt, "Uploading project...");
 
     try {
         // Upload URL
@@ -190,22 +234,30 @@ async function uploadFiles(_ctx: Context, config: DeploymentConfig) {
 
         await config.client.files.upload(signedURL, form);
 
-        uploadSpinner.succeed("Project uploaded");
+        stopTimer();
+        uploadSpinner.succeed(`Project uploaded ${chalk.gray(`(${formatDuration(Date.now() - startedAt)})`)}`);
     } catch (err) {
-        uploadSpinner.fail("Upload failed (maybe your server's storage is full?)");
+        stopTimer();
+        uploadSpinner.fail(
+            `Upload failed (maybe your server's storage is full?) ${chalk.gray(`(${formatDuration(Date.now() - startedAt)})`)}`,
+        );
         throw err;
     }
 }
 
 async function cleanLocalFiles(_ctx: Context, config: DeploymentConfig) {
     const cleanSpinner = ora("Deleting temporary files...").start();
+    const startedAt = Date.now();
+    const stopTimer = startElapsedTimer(cleanSpinner, startedAt, "Deleting temporary files...");
 
     try {
         await unlink(config.archivePath);
 
-        cleanSpinner.succeed("Deleted temporary files");
+        stopTimer();
+        cleanSpinner.succeed(`Deleted temporary files ${chalk.gray(`(${formatDuration(Date.now() - startedAt)})`)}`);
     } catch (err) {
-        cleanSpinner.fail("Delete temporary files failed");
+        stopTimer();
+        cleanSpinner.fail(`Delete temporary files failed ${chalk.gray(`(${formatDuration(Date.now() - startedAt)})`)}`);
         throw err;
     }
 }
@@ -221,12 +273,16 @@ async function runPowerAction(
     },
 ) {
     const spinner = ora(options.loadingText).start();
+    const startedAt = Date.now();
+    const stopTimer = startElapsedTimer(spinner, startedAt, options.loadingText);
 
     try {
         await config.client.servers.sendPowerAction(config.project.serverId, { signal: options.signal });
-        spinner.succeed(options.successText);
+        stopTimer();
+        spinner.succeed(`${options.successText} ${chalk.gray(`(${formatDuration(Date.now() - startedAt)})`)}`);
     } catch (err) {
-        spinner.fail(options.failText);
+        stopTimer();
+        spinner.fail(`${options.failText} ${chalk.gray(`(${formatDuration(Date.now() - startedAt)})`)}`);
         throw err;
     }
 }
