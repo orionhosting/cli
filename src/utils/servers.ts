@@ -6,7 +6,6 @@ import { ClientServer } from "@voctal/pelican";
  * @param value - Milliseconds
  */
 export const formatUptime = (value: number) => {
-    // @ts-expect-error DurationFormat does not exist in TS v5
     const intl = new Intl.DurationFormat("en", { style: "narrow" });
     const uptime: string = intl.format({
         seconds: Math.floor((value / 1000) % 60),
