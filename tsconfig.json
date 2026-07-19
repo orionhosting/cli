@@ -45,7 +45,8 @@
         "useDefineForClassFields": true,
 
         // React
-        "jsx": "react-jsx"
+        "jsx": "react-jsx",
+        "types": ["node"]
     },
     "include": ["src/**/*.ts", "src/**/*.tsx"],
     "exclude": ["node_modules"]
